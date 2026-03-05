@@ -1,9 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getAssignmentById, updateAssignment, deleteAssignment } from '@/lib/db';
 
-export async function GET(_request: NextRequest, { params }: { params: { id: string } }) {
+export async function GET(_request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
-    const assignment = getAssignmentById(params.id);
+    const { id } = await params;
+    const assignment = getAssignmentById(id);
     if (!assignment) {
       return NextResponse.json({ success: false, message: 'Assignment not found' }, { status: 404 });
     }
@@ -13,8 +14,9 @@ export async function GET(_request: NextRequest, { params }: { params: { id: str
   }
 }
 
-export async function PUT(request: NextRequest, { params }: { params: { id: string } }) {
+export async function PUT(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
+    const { id } = await params;
     const body = await request.json();
     const { title, description, dueDate, status } = body;
 
@@ -26,7 +28,7 @@ export async function PUT(request: NextRequest, { params }: { params: { id: stri
       );
     }
 
-    const updated = updateAssignment(params.id, { title, description, dueDate, status });
+    const updated = updateAssignment(id, { title, description, dueDate, status });
     if (!updated) {
       return NextResponse.json({ success: false, message: 'Assignment not found' }, { status: 404 });
     }
@@ -36,9 +38,10 @@ export async function PUT(request: NextRequest, { params }: { params: { id: stri
   }
 }
 
-export async function DELETE(_request: NextRequest, { params }: { params: { id: string } }) {
+export async function DELETE(_request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
-    const deleted = deleteAssignment(params.id);
+    const { id } = await params;
+    const deleted = deleteAssignment(id);
     if (!deleted) {
       return NextResponse.json({ success: false, message: 'Assignment not found' }, { status: 404 });
     }
